@@ -3,7 +3,7 @@ gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk
 from settings import Settings
 from remote import Remote
-from setup import Setup
+from window import Setup
 from eventhandler import EventHandler
 
 builder = Gtk.Builder()

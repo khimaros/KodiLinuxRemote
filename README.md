@@ -24,6 +24,7 @@ Since I am just starting with its development, there aren't any builds available
 - Python 3
 - Fedora 25/26 (Untested on other linux distributions)
 - `requests` package (Python)
+- `jsonrpcclient` package (Python)
 
 Getting the code and running is the easiest part,
 

@@ -1,27 +1,24 @@
 import requests
+import jsonrpcclient
 from requests.exceptions import ConnectionError
 from settings import Settings
-from urlhelper import UrlHelper
 
 class Kodi():
     player_id = None
     username = None
     password = None
-    url_helper = None
-    parent_params = None
 
     def __init__(self, username, password, ip_address, port):
-        self.url_helper = UrlHelper(ip_address, port)
         self.ip_address = ip_address
         self.port = port
         self.username = username
         self.password = password
-        self.parent_params = {}
+        self.base_url = 'http://' + self.ip_address + ':' + self.port + '/jsonrpc'
 
     def Connect(self):
         try:
             # TODO Save settings based on response
-            response = requests.get(self.url_helper.prepare_url_without_param('Player.GetActivePlayers'), auth=(self.username, self.password))
+            self.GetActivePlayers()
             settings = Settings()
             settings.Save({'ip_address' : self.ip_address, 'port' : self.port, 'username' : self.username, 'password' : self.password})
             return True
@@ -43,77 +40,56 @@ class Kodi():
             return False
 
     def GetActivePlayers(self):
-        response = requests.get(self.url_helper.prepare_url_without_param('Player.GetActivePlayers'), auth=(self.username, self.password))
-        response = response.json()['result']
-        # check if something is playing
+        response = self.InvokeMethod('Player.GetActivePlayers')
         if len(response) == 0:
             return None
         else:
             return response[0]['playerid']
 
     def PlayerGetItem(self):
-        params = self.url_helper.prepare_param(self.parent_params, {'name': 'playerid', 'value': self.player_id})
-        response = requests.get(self.url_helper.prepare_url_with_param('Player.GetItem', params), auth=(self.username, self.password))
-        self.parent_params = {}
-        response = response.json()
-        return response['result']['item']['label']
+        response = self.InvokeMethod('Player.GetItem', {'name': 'playerid', 'value': self.player_id})
+        return response['item']['label']
 
     def InputBack(self):
-        response = requests.get(self.url_helper.prepare_url_without_param('Input.Back'), auth=(self.username, self.password))
-        self.ParseResponse(response)
+        self.InvokeMethod('Input.Back')
 
     def InputLeft(self):
-        response = requests.get(self.url_helper.prepare_url_without_param('Input.Left'), auth=(self.username, self.password))
-        self.ParseResponse(response)
+        self.InvokeMethod('Input.Left')
 
     def InputRight(self):
-        response = requests.get(self.url_helper.prepare_url_without_param('Input.Right'), auth=(self.username, self.password))
-        self.ParseResponse(response)
+        self.InvokeMethod('Input.Right')
 
     def InputSelect(self):
-        response = requests.get(self.url_helper.prepare_url_without_param('Input.Select'), auth=(self.username, self.password))
-        self.ParseResponse(response)
+        self.InvokeMethod('Input.Select')
 
     def InputUp(self):
-        response = requests.get(self.url_helper.prepare_url_without_param('Input.Up'), auth=(self.username, self.password))
-        self.ParseResponse(response)
+        self.InvokeMethod('Input.Up')
 
     def InputDown(self):
-        response = requests.get(self.url_helper.prepare_url_without_param('Input.Down'), auth=(self.username, self.password))
-        self.ParseResponse(response)
+        self.InvokeMethod('Input.Down')
 
     def PlayPause(self):
-        params = self.url_helper.prepare_param(self.parent_params, {'name': 'playerid', 'value': self.player_id})
-        response = requests.get(self.url_helper.prepare_url_with_param('Player.PlayPause', params), auth=(self.username, self.password))
-        self.parent_params = {}
-        self.ParseResponse(response)
+        self.InvokeMethod('Player.PlayPause', {'name': 'playerid', 'value': self.player_id})
 
     def Stop(self):
-        params = self.url_helper.prepare_param(self.parent_params, {'name': 'playerid', 'value': self.player_id})
-        response = requests.get(self.url_helper.prepare_url_with_param('Player.Stop', params), auth=(self.username, self.password))
-        self.parent_params = {}
-        self.ParseResponse(response)
+        self.InvokeMethod('Player.Stop', {'name': 'playerid', 'value': self.player_id})
 
     def Previous(self):
-        parent_params = self.url_helper.prepare_param(self.parent_params, {'name': 'playerid', 'value': self.player_id})
-        parent_params = self.url_helper.prepare_param(self.parent_params, {'name': 'to', 'value': 'previous'})
-        response = requests.get(self.url_helper.prepare_url_with_param('Player.GoTo', parent_params), auth=(self.username, self.password))
-        self.parent_params = {}
-        self.ParseResponse(response)
+        pass
 
     def Next(self):
-        parent_params = self.url_helper.prepare_param(self.parent_params, {'name': 'playerid', 'value': self.player_id})
-        parent_params = self.url_helper.prepare_param(self.parent_params, {'name': 'to', 'value': 'next'})
-        response = requests.get(self.url_helper.prepare_url_with_param('Player.GoTo', parent_params), auth=(self.username, self.password))
-        self.parent_params = {}
-        self.ParseResponse(response)
+        #response = requests.post(self.url_helper.prepare_url_with_param('Player.GoTo', parent_params), auth=(self.username, self.password))
+        pass
 
     def SetVolume(self, vol_type):
-        params = self.url_helper.prepare_param(self.parent_params, {'name': 'volume', 'value': vol_type})
-        response = requests.get(self.url_helper.prepare_url_with_param('Application.SetVolume', params), auth=(self.username, self.password))
-        self.parent_params = {}
-        self.ParseResponse(response)
+        self.InvokeMethod('Application.SetVolume', {'name': 'volume', 'value': vol_type})
 
-    def ParseResponse(self, response):
-        response = response.json()
-        # print(response)
+    def InvokeMethod(self, method, params=None):
+        print('=>', self.base_url, method, params)
+        response = requests.post(self.base_url,
+            json=jsonrpcclient.request(method, params),
+            auth=requests.auth.HTTPBasicAuth(self.username, self.password),
+        )
+        result = jsonrpcclient.parse(response.json()).result
+        print('<=', result)
+        return result
