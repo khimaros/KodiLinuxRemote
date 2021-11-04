@@ -62,20 +62,20 @@ class EventHandler:
     def onMediaPreviousClicked(self, button):
         self.kodi.Previous()
 
-    def onMediaRewindClicked(self, button):
-        pass
-
     def onMediaNextClicked(self, button):
         self.kodi.Next()
+
+    def onMediaRewindClicked(self, button):
+        pass
 
     def onMediaForwardClicked(self, button):
         pass
 
     def onVolumeDecreaseClicked(self, button):
-        self.kodi.SetVolume('decrement')
+        self.kodi.VolumeDecrease()
 
     def onVolumeIncreaseClicked(self, button):
-        self.kodi.SetVolume('increment')
+        self.kodi.VolumeIncrease()
 
     def onVolumeToggleClicked(self, button):
         pass
@@ -103,10 +103,10 @@ class EventHandler:
             self.kodi.InputSelect()
         # Plus key
         elif key_code is 20:
-            self.kodi.SetVolume('decrement')
+            self.kodi.VolumeIncrease()
         # Minus key
         elif key_code is 21:
-            self.kodi.SetVolume('increment')
+            self.kodi.VolumeDecrease()
         # Spacebar
         elif key_code is 65:
             self.kodi.PlayPause()

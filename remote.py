@@ -33,9 +33,12 @@ class Remote:
         buttonPlayPause = builder.get_object('buttonMediaPlayPause')
         if currentPlaying:
             if currentPlaying == 'Nothing is playing':
-                image = Gtk.Image(stock=Gtk.STOCK_MEDIA_PLAY)
+                #image = Gtk.Image(stock=Gtk.STOCK_MEDIA_PLAY)
+                image = Gtk.Image.new_from_icon_name('media-playback-start', Gtk.IconSize.DIALOG)
             else:
-                image = Gtk.Image(stock=Gtk.STOCK_MEDIA_PAUSE)
+                #image = Gtk.Image(stock=Gtk.STOCK_MEDIA_PAUSE)
+                image = Gtk.Image.new_from_icon_name('media-playback-pause', Gtk.IconSize.DIALOG)
         else:
-            image = Gtk.Image(stock=Gtk.STOCK_MEDIA_PLAY)
+            #image = Gtk.Image(stock=Gtk.STOCK_MEDIA_PLAY)
+            image = Gtk.Image.new_from_icon_name('media-playback-start', Gtk.IconSize.DIALOG)
         buttonPlayPause.set_image(image)

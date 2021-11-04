@@ -47,7 +47,7 @@ class Kodi():
             return response[0]['playerid']
 
     def PlayerGetItem(self):
-        response = self.InvokeMethod('Player.GetItem', {'name': 'playerid', 'value': self.player_id})
+        response = self.InvokeMethod('Player.GetItem', {'playerid': self.player_id})
         return response['item']['label']
 
     def InputBack(self):
@@ -69,27 +69,36 @@ class Kodi():
         self.InvokeMethod('Input.Down')
 
     def PlayPause(self):
-        self.InvokeMethod('Player.PlayPause', {'name': 'playerid', 'value': self.player_id})
+        self.InvokeMethod('Player.PlayPause', {'playerid': self.player_id})
 
     def Stop(self):
-        self.InvokeMethod('Player.Stop', {'name': 'playerid', 'value': self.player_id})
+        self.InvokeMethod('Player.Stop', {'playerid': self.player_id})
 
     def Previous(self):
-        pass
+        self.InvokeMethod('Player.GoTo', {'playerid': self.player_id, 'to': 'previous'})
 
     def Next(self):
-        #response = requests.post(self.url_helper.prepare_url_with_param('Player.GoTo', parent_params), auth=(self.username, self.password))
-        pass
+        self.InvokeMethod('Player.GoTo', {'playerid': self.player_id, 'to': 'next'})
 
-    def SetVolume(self, vol_type):
-        self.InvokeMethod('Application.SetVolume', {'name': 'volume', 'value': vol_type})
+    def MuteToggle(self):
+        self.InvokeMethod('Application.SetMute', {'mute': 'toggle'})
+
+    def VolumeIncrease(self):
+        self.InvokeMethod('Application.SetVolume', {'volume': 'increment'})
+
+    def VolumeDecrease(self):
+        self.InvokeMethod('Application.SetVolume', {'volume': 'decrement'})
 
     def InvokeMethod(self, method, params=None):
         print('=>', self.base_url, method, params)
-        response = requests.post(self.base_url,
-            json=jsonrpcclient.request(method, params),
-            auth=requests.auth.HTTPBasicAuth(self.username, self.password),
-        )
-        result = jsonrpcclient.parse(response.json()).result
+        jreq = jsonrpcclient.request(method, params)
+        auth = requests.auth.HTTPBasicAuth(self.username, self.password)
+        print('**', jreq)
+        response = requests.post(self.base_url, json=jreq, auth=auth)
+        try:
+            jresp = jsonrpcclient.parse(response.json())
+            result = jresp.result
+        except Exception as e:
+            print('!!', e, jresp)
         print('<=', result)
         return result
