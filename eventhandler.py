@@ -84,31 +84,31 @@ class EventHandler:
         key_code = args.get_keycode()[1]
 
         # Backspace
-        if key_code is 22:
+        if key_code == 22:
             self.kodi.InputBack()
         # Key left
-        elif key_code is 113:
+        elif key_code == 113:
             self.kodi.InputLeft()
         # Key right
-        elif key_code is 114:
+        elif key_code == 114:
             self.kodi.InputRight()
         # Key up
-        elif key_code is 111:
+        elif key_code == 111:
             self.kodi.InputUp()
         # Key down
-        elif key_code is 116:
+        elif key_code == 116:
             self.kodi.InputDown()
         # Enter
-        elif key_code is 36:
+        elif key_code == 36:
             self.kodi.InputSelect()
         # Plus key
-        elif key_code is 20:
+        elif key_code == 20:
             self.kodi.VolumeIncrease()
         # Minus key
-        elif key_code is 21:
+        elif key_code == 21:
             self.kodi.VolumeDecrease()
         # Spacebar
-        elif key_code is 65:
+        elif key_code == 65:
             self.kodi.PlayPause()
         else:
             print(key_code)
